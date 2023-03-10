@@ -1,0 +1,101 @@
+---
+title: "Drug_test_project_Assignment_Chi"
+output: pdf_document
+date: '2022-06-28'
+---
+
+# Introduction:
+
+The data of this project assignment is the "placebo_new_drug" data which is about results from testing new drug. The sample is small with 5 objects. Hence, I will choose non-parametric test to analyze the data.
+
+# The Analysis:
+
+Firstly, I import the libraries and the data:
+
+```{r}
+library(data.table)
+library(BSDA)
+library(dplyr)
+setwd("/Users/kienguyen/Documents/DATA SCIENCE/MSDS/03. MSMS 660/08. Week 8/In class")
+
+drugdt <- read.csv(file = 'placebo_new_drug.csv',sep=",", header=T)
+```
+
+Next, I calculate the median of the 2 groups:
+
+```{r}
+median(drugdt$Placebo)
+median(drugdt$New.Drug)
+```
+
+The mean of "Placebo" variable is greater than the "New.Drug" variable, hence, I will use "greater" alternative for the below tests about the means.
+
+## Test the difference between medians of 2 groups:
+
+### SIGN test:
+
+```{r}
+SIGN.test(x = drugdt$Placebo, y = drugdt$New.Drug , alternative = 'greater')
+```
+
+p-value = 0.1875 \>0.05. We fail to reject the null hypothesis and state that the medians are NOT significantly different.
+
+### Wilcoxon Signed Rank test
+
+```{r}
+wilcox.test(drugdt$Placebo, drugdt$New.Drug, alternative = 'greater')
+```
+
+We received the red warning because of the small size sample. So, with the p-value = 0.02928 \< 0.05, I think I will take one more test to check rather than trust this result.
+
+### Kruskal-Wallis
+
+```{r}
+kruskal.test(drugdt)
+```
+
+The p-value 0.04587 which is approximately equal to 0.05, so that we fail to reject the null hypothesis and state that the medians are NOT significantly different.
+
+## Check the distribution difference between 2 groups:
+
+### Kolmogorov-Smirnov:
+
+```{r}
+ks.test(drugdt$New.Drug, drugdt$Placebo,alternative = 'greater')
+```
+
+The p-value is 0.1429 bigger than 0.05, so we accept the null hypothesis which mean that the two dataset values are from the same continuous distribution.
+
+## Test if variables are correlated
+
+### Spearman test
+
+Now, let's check if those 2 variables are correlated together or not with Spearman test:
+
+```{r}
+library(pspearman)
+spearman.test(drugdt$Placebo, drugdt$New.Drug)
+```
+
+According to the Spearman test:
+
+-   The p-value is 0.5167 \> 0.05 which indicates that there's a weak evidence to reject the null Hypothesis. We fail to reject the null hypothesis and there is NO relationship between 2 variables.
+
+### Kendall's Tau
+
+```{r}
+library(Kendall)
+Kendall(drugdt$Placebo, drugdt$New.Drug)
+```
+
+The p-value of this test also bigger than 0.05 which means there's NO relationship between 2 variables.
+
+# SUMMARY:
+
+I firstly import the "placebo_new_drug" data which is about results from testing new drug and choose non-parametric test to analyze the data:
+
+-   Check the difference between medians of 2 groups with: SIGN test, Wilcoxon,and Kruskal test: the p-values of SIGN and Kruskal test are bigger or equal to 0.05, so the medians are NOT significantly different. There was a red warning when running the Wilcoxon Signed Rank test due to the small size sample, so that I don't trust this result when the p-value = 0.02928 \< 0.05.
+
+-   Check the distribution difference: Kolmogorov-Smirnov test results in the p-value is 0.1429 bigger than 0.05, so we can accept the null hypothesis which mean that the two data set values are from the same continuous distribution.
+
+-   Check the correlation between 2 variables: Spearman test and Kendal'Tau both result in the conclusion that there's NO relationship between 2 variables.
